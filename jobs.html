@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Upwork Jobs</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:       #0d1117;
+            --surface:  #161b22;
+            --surface2: #1c2128;
+            --border:   #21262d;
+            --border2:  #30363d;
+            --text:     #e6edf3;
+            --muted:    #8b949e;
+            --dim:      #484f58;
+            --green:    #14a800;
+            --green-fg: #3fb950;
+            --blue:     #58a6ff;
+            --blue-hi:  #79c0ff;
+            --gold:     #d29922;
+            --red:      #f85149;
+            --new-glow: rgba(20,168,0,.06);
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* ── Header ── */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: linear-gradient(135deg, var(--green), #0d8a00);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            box-shadow: 0 1px 0 rgba(0,0,0,.4);
+        }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .logo { font-size: 18px; font-weight: 800; color: #fff; }
+        .logo span { background: rgba(255,255,255,.2); border-radius: 5px; padding: 1px 7px; }
+        .logo img { max-width: 16px; max-height: 16px; }
+        .header-counts {
+            display: flex;
+            gap: 8px;
+            font-size: 12px;
+            color: rgba(255,255,255,.85);
+            flex-wrap: wrap;
+        }
+        .hcount {
+            background: rgba(0,0,0,.2);
+            border-radius: 20px;
+            padding: 2px 10px;
+            font-weight: 600;
+        }
+        .hcount.new-count { background: rgba(0,0,0,.35); color: #fff; }
+        .header-right { display: flex; gap: 8px; flex-shrink: 0; }
+        .hbtn {
+            background: rgba(255,255,255,.15);
+            border: 1px solid rgba(255,255,255,.3);
+            color: #fff;
+            border-radius: 6px;
+            padding: 5px 13px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: background .15s;
+        }
+        .hbtn:hover { background: rgba(255,255,255,.25); }
+
+        /* ── Filter bar ── */
+        .filter-bar {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 8px 24px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-size: 11px;
+            color: var(--muted);
+        }
+        .filter-bar strong { color: var(--text); font-weight: 600; }
+        .filter-pill {
+            background: var(--surface2);
+            border: 1px solid var(--border2);
+            border-radius: 20px;
+            padding: 2px 10px;
+            font-size: 11px;
+            color: var(--muted);
+        }
+        .filter-pill.active {
+            background: rgba(88,166,255,.1);
+            border-color: rgba(88,166,255,.3);
+            color: var(--blue);
+        }
+        .filter-sep { color: var(--dim); }
+
+        /* ── Layout ── */
+        .page { max-width: 900px; margin: 0 auto; padding: 24px 24px 48px; }
+
+        /* ── Section headers ── */
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .section-badge {
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 20px;
+            padding: 2px 9px;
+        }
+        .badge-new  { background: rgba(20,168,0,.15); color: var(--green-fg); border: 1px solid rgba(20,168,0,.3); }
+        .badge-seen { background: var(--surface2);    color: var(--muted);    border: 1px solid var(--border2); }
+
+        .section-new  { margin-bottom: 36px; }
+        .section-seen { margin-bottom: 24px; }
+
+        /* ── Job cards ── */
+        .jobs-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .job-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px 18px;
+            transition: border-color .15s, background .15s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .job-card:hover {
+            border-color: rgba(88,166,255,.35);
+            background: var(--surface2);
+        }
+        .job-card.is-new {
+            background: var(--new-glow);
+            border-color: rgba(20,168,0,.25);
+        }
+        .job-card.is-new:hover {
+            border-color: rgba(20,168,0,.5);
+            background: rgba(20,168,0,.09);
+        }
+        .job-card.applied { opacity: .55; }
+
+        .card-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--blue);
+            line-height: 1.4;
+            margin-bottom: 8px;
+            display: block;
+            text-decoration: none;
+        }
+        .card-title:hover { color: var(--blue-hi); text-decoration: underline; }
+
+        .card-meta {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .meta-budget  { font-size: 13px; font-weight: 700; color: var(--text); }
+        .meta-badge   {
+            font-size: 11px; font-weight: 700; border-radius: 4px; padding: 2px 7px;
+            background: rgba(20,168,0,.12); color: var(--green-fg);
+            border: 1px solid rgba(20,168,0,.25);
+        }
+        .meta-tier    {
+            font-size: 11px; border-radius: 4px; padding: 2px 7px; font-weight: 600;
+            background: rgba(210,153,34,.1); color: var(--gold);
+            border: 1px solid rgba(210,153,34,.25);
+        }
+        .meta-applied {
+            font-size: 11px; font-weight: 700; color: var(--green-fg);
+        }
+        .meta-time    { font-size: 12px; color: var(--muted); }
+        .meta-country { font-size: 12px; color: var(--muted); }
+        .meta-proposals { font-size: 12px; color: var(--muted); }
+        .meta-dot { color: var(--dim); font-size: 11px; }
+
+        .card-skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 8px;
+        }
+        .skill-tag {
+            font-size: 11px;
+            background: #21262d;
+            color: var(--muted);
+            border-radius: 4px;
+            padding: 2px 7px;
+        }
+        .skill-tag.matched {
+            background: rgba(88,166,255,.12);
+            color: var(--blue);
+            border: 1px solid rgba(88,166,255,.25);
+        }
+
+        .card-desc {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-top: 10px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* ── Empty states ── */
+        .empty {
+            text-align: center;
+            padding: 28px 20px;
+            color: var(--dim);
+            font-size: 13px;
+            background: var(--surface);
+            border: 1px dashed var(--border2);
+            border-radius: 10px;
+            line-height: 1.7;
+        }
+
+        /* ── Loading / error state ── */
+        .loading-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--muted);
+        }
+        .spinner {
+            width: 28px; height: 28px;
+            border: 3px solid var(--border2);
+            border-top-color: var(--green);
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Back to top ── */
+        #back-top {
+            position: fixed; bottom: 24px; right: 24px;
+            background: var(--surface2);
+            border: 1px solid var(--border2);
+            color: var(--muted);
+            border-radius: 8px;
+            padding: 8px 14px;
+            font-size: 12px;
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s;
+        }
+        #back-top.show { opacity: 1; pointer-events: auto; }
+        #back-top:hover { color: var(--text); border-color: var(--muted); }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="header-left">
+        <div class="logo"><img src="/icons/icon.png" alt="Upwork Job Search Assistant"> Upwork Jobs</div>
+        <div class="header-counts" id="hcounts">
+            <span class="hcount" id="hcount-total">Loading…</span>
+        </div>
+    </div>
+    <div class="header-right">
+        <a class="hbtn" id="btn-popup" href="#" title="Close tab">✕ Close</a>
+    </div>
+</header>
+
+<div class="filter-bar" id="filter-bar">
+    <strong>Filters:</strong>
+    <span class="filter-pill" id="fp-feed">Feed</span>
+    <span class="filter-sep">·</span>
+    <span class="filter-pill" id="fp-time">Time</span>
+    <span class="filter-sep">·</span>
+    <span class="filter-pill" id="fp-type">Any type</span>
+    <span class="filter-sep">·</span>
+    <span class="filter-pill" id="fp-skills">Any skills</span>
+</div>
+
+<main class="page" id="main-page">
+    <div class="loading-state" id="loading-state">
+        <div class="spinner"></div>
+        <div>Loading jobs…</div>
+    </div>
+</main>
+
+<button id="back-top" title="Back to top">↑ Top</button>
+
+<script src="jobs.js"></script>
+</body>
+</html>

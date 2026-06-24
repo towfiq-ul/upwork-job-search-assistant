@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Upwork Job Search Assistant</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            width: 430px;
+            min-height: 500px;
+            max-height: 620px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #14a800, #0d8a00);
+            padding: 11px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .logo {
+            font-size: 17px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .logo span {
+            background: rgba(255, 255, 255, .2);
+            border-radius: 5px;
+            padding: 1px 6px;
+        }
+
+        .logo img {
+            max-width: 16px;
+            max-height: 16px;
+        }
+
+        .subtitle {
+            font-size: 10px;
+            color: rgba(255, 255, 255, .75);
+            margin-top: 1px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .toggle-wrap {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .toggle-label {
+            font-size: 10px;
+            color: rgba(255, 255, 255, .9);
+            font-weight: 700;
+            min-width: 20px;
+        }
+
+        .toggle {
+            position: relative;
+            width: 34px;
+            height: 18px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            inset: 0;
+            background: #555;
+            border-radius: 18px;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .slider:before {
+            content: '';
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            left: 2px;
+            bottom: 2px;
+            background: #fff;
+            border-radius: 50%;
+            transition: .2s;
+        }
+
+        input:checked + .slider {
+            background: rgba(255, 255, 255, .35);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(16px);
+        }
+
+        .btn-refresh {
+            background: rgba(255, 255, 255, .15);
+            border: 1px solid rgba(255, 255, 255, .3);
+            color: #fff;
+            border-radius: 6px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background .15s;
+        }
+
+        .btn-refresh:hover {
+            background: rgba(255, 255, 255, .25);
+        }
+
+        .btn-refresh:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+        }
+
+        .filters {
+            padding: 10px 12px;
+            background: #161b22;
+            border-bottom: 1px solid #21262d;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            flex: 1;
+        }
+
+        label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #8b949e;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+
+        input[type="text"], select {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            color: #e6edf3;
+            font-size: 12px;
+            padding: 6px 9px;
+            outline: none;
+            transition: border-color .2s;
+            width: 100%;
+        }
+
+        input[type="text"]:focus, select:focus {
+            border-color: #14a800;
+        }
+
+        input::placeholder {
+            color: #484f58;
+        }
+
+        select option {
+            background: #161b22;
+        }
+
+        .feed-hint {
+            font-size: 10px;
+            color: #6e7681;
+            margin-top: 1px;
+            line-height: 1.4;
+        }
+
+        .job-type-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .checkbox-pill {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 6px 10px;
+            cursor: pointer;
+            transition: border-color .15s, background .15s;
+            font-size: 12px;
+            color: #8b949e;
+            user-select: none;
+        }
+
+        .checkbox-pill input {
+            accent-color: #14a800;
+            width: 13px;
+            height: 13px;
+            cursor: pointer;
+        }
+
+        .checkbox-pill:has(input:checked) {
+            border-color: #14a800;
+            background: rgba(20, 168, 0, .08);
+            color: #e6edf3;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 6px;
+            padding: 7px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background .15s, transform .1s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .btn:active {
+            transform: scale(.97);
+        }
+
+        .btn-primary {
+            background: #14a800;
+            color: #fff;
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background: #12960a;
+        }
+
+        .btn-view {
+            background: #1a2535;
+            color: #58a6ff;
+            border: 1px solid rgba(88, 166, 255, .25);
+        }
+
+        .btn-view:hover {
+            background: #1e2f42;
+            border-color: rgba(88, 166, 255, .5);
+        }
+
+        .btn-danger {
+            background: #3d1f1f;
+            color: #f85149;
+        }
+
+        .btn-danger:hover {
+            background: #4d2020;
+        }
+
+        /* Auth alert banner */
+        .auth-banner {
+            display: none;
+            padding: 12px;
+            margin: 10px 12px 0;
+            background: rgba(248, 81, 73, .08);
+            border: 1px solid rgba(248, 81, 73, .3);
+            border-radius: 8px;
+            gap: 8px;
+            flex-direction: column;
+        }
+
+        .auth-banner.show {
+            display: flex;
+        }
+
+        .auth-banner.warn {
+            background: rgba(210, 153, 34, .08);
+            border-color: rgba(210, 153, 34, .3);
+        }
+
+        .auth-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #f85149;
+        }
+
+        .auth-banner.warn .auth-title {
+            color: #d29922;
+        }
+
+        .auth-text {
+            font-size: 11px;
+            color: #8b949e;
+            line-height: 1.5;
+        }
+
+        .auth-btn {
+            align-self: flex-start;
+            background: #14a800;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 2px;
+        }
+
+        .auth-btn:hover {
+            background: #12960a;
+        }
+
+        .status-bar {
+            padding: 6px 12px;
+            font-size: 11px;
+            background: #0d1117;
+            border-bottom: 1px solid #21262d;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            min-height: 30px;
+        }
+
+        .status-bar .text {
+            color: #8b949e;
+        }
+
+        .status-bar.error .text {
+            color: #f85149;
+        }
+
+        .status-bar.success .text {
+            color: #3fb950;
+        }
+
+        .status-bar.loading .text {
+            color: #58a6ff;
+        }
+
+        .status-bar.warn .text {
+            color: #d29922;
+        }
+
+        .spinner {
+            width: 10px;
+            height: 10px;
+            border: 2px solid #30363d;
+            border-top-color: #14a800;
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .jobs-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .jobs-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .jobs-list::-webkit-scrollbar-track {
+            background: #0d1117;
+        }
+
+        .jobs-list::-webkit-scrollbar-thumb {
+            background: #30363d;
+            border-radius: 3px;
+        }
+
+        .job-item {
+            padding: 9px 12px;
+            border-bottom: 1px solid #21262d;
+            cursor: pointer;
+            transition: background .12s;
+        }
+
+        .job-item:hover {
+            background: #161b22;
+        }
+
+        .job-item:last-child {
+            border-bottom: none;
+        }
+
+        .job-item.applied {
+            opacity: .55;
+        }
+
+        .job-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #58a6ff;
+            line-height: 1.4;
+            margin-bottom: 3px;
+        }
+
+        .job-item:hover .job-title {
+            color: #79c0ff;
+        }
+
+        .job-meta {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .job-meta2 {
+            margin-top: 2px;
+        }
+
+        .job-time {
+            font-size: 10px;
+            color: #8b949e;
+        }
+
+        .job-budget {
+            font-size: 10px;
+            color: #e6edf3;
+            font-weight: 700;
+        }
+
+        .job-badge {
+            font-size: 9px;
+            font-weight: 700;
+            background: rgba(20, 168, 0, .12);
+            color: #3fb950;
+            border: 1px solid rgba(20, 168, 0, .25);
+            border-radius: 3px;
+            padding: 1px 5px;
+        }
+
+        .job-tier {
+            font-size: 9px;
+            color: #d29922;
+            background: rgba(210, 153, 34, .1);
+            border: 1px solid rgba(210, 153, 34, .25);
+            border-radius: 3px;
+            padding: 1px 5px;
+            font-weight: 600;
+        }
+
+        .job-country {
+            font-size: 10px;
+            color: #8b949e;
+        }
+
+        .job-proposals {
+            font-size: 10px;
+            color: #8b949e;
+        }
+
+        .job-applied {
+            font-size: 9px;
+            color: #3fb950;
+            font-weight: 700;
+        }
+
+        .job-skills {
+            margin-top: 3px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+        }
+
+        .skill-tag {
+            font-size: 9px;
+            background: #21262d;
+            color: #8b949e;
+            border-radius: 3px;
+            padding: 1px 5px;
+        }
+
+        .skill-tag.matched {
+            background: rgba(88, 166, 255, .12);
+            color: #58a6ff;
+            border: 1px solid rgba(88, 166, 255, .25);
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 36px 20px;
+            gap: 10px;
+            color: #484f58;
+            text-align: center;
+        }
+
+        .empty-icon {
+            font-size: 30px;
+            opacity: .4;
+        }
+
+        .empty-text {
+            font-size: 12px;
+            line-height: 1.7;
+        }
+
+        .disabled-overlay {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            gap: 10px;
+            color: #484f58;
+            text-align: center;
+            flex: 1;
+        }
+
+        .disabled-overlay.show {
+            display: flex;
+        }
+
+        .disabled-icon {
+            font-size: 36px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div>
+        <div class="logo"><img src="/icons/icon.png" alt="Upwork Job Search Assistant"> Upwork Job Search Assistant</div>
+        <div class="subtitle">Auto-polls every minute · no tab needed</div>
+    </div>
+    <div class="header-right">
+        <button class="btn-refresh" id="btn-refresh">⟳ Refresh</button>
+        <div class="toggle-wrap">
+            <span class="toggle-label" id="toggle-label">ON</span>
+            <label class="toggle">
+                <input type="checkbox" id="enable-toggle" checked/>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+</div>
+
+<div class="auth-banner" id="auth-banner">
+    <div class="auth-title" id="auth-title">Not logged in to Upwork</div>
+    <div class="auth-text" id="auth-text">Log in to your Upwork account so the extension can fetch jobs on your
+        behalf.
+    </div>
+    <button class="auth-btn" id="auth-btn">Log in to Upwork</button>
+</div>
+
+<div class="filters">
+    <div class="filter-row">
+        <div class="filter-group">
+            <label>Feed</label>
+            <select id="feed-type">
+                <option value="mostRecent">Most Recent</option>
+                <option value="bestMatches">Best Matches</option>
+                <option value="myFeed">My Feed</option>
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>Posted Within</label>
+            <select id="time-filter">
+                <option value="0.0417">Last hour</option>
+                <option value="0.0833">Last 2 hours</option>
+                <option value="0.125">Last 3 hours</option>
+                <option value="0.25">Last 6 hours</option>
+                <option value="0.5">Last 12 hours</option>
+                <option value="1">Last 24 hours</option>
+                <option value="3">Last 3 days</option>
+                <option value="7" selected>Last 7 days</option>
+                <option value="14">Last 14 days</option>
+                <option value="30">Last 30 days</option>
+                <option value="9999">All time</option>
+            </select>
+        </div>
+    </div>
+    <div class="feed-hint" id="feed-hint">Newest jobs sorted by post time — no Upwork-side setup needed.</div>
+
+    <div class="filter-row">
+        <div class="filter-group">
+            <label>Job Type</label>
+            <div class="job-type-row">
+                <label class="checkbox-pill">
+                    <input type="checkbox" id="type-hourly"/>
+                    <span>Hourly</span>
+                </label>
+                <label class="checkbox-pill">
+                    <input type="checkbox" id="type-fixed"/>
+                    <span>Fixed-price</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="filter-row">
+        <div class="filter-group">
+            <label>Skills (comma separated)</label>
+            <input type="text" id="skills-input" placeholder="e.g. React, Python, WordPress"/>
+        </div>
+        <div style="display:flex;gap:6px;align-self:flex-end;">
+            <button class="btn btn-primary" id="btn-filter">Filter</button>
+            <button class="btn btn-view" id="btn-view-all" title="Open full job list in new tab">📋 All</button>
+            <button class="btn btn-danger" id="btn-clear" title="Clear all jobs">🗑</button>
+        </div>
+    </div>
+</div>
+
+<div class="status-bar" id="status-bar">
+    <div class="spinner"></div>
+    <span class="text">Loading…</span>
+</div>
+
+<div class="jobs-list" id="jobs-list"></div>
+
+<div class="disabled-overlay" id="disabled-overlay">
+    <div class="disabled-icon">⏸️</div>
+    <div style="font-size:13px;line-height:1.6;">Scraper is paused.<br/>Toggle ON to resume.</div>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>
