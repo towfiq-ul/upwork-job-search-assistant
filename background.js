@@ -24,7 +24,7 @@ const FIND_WORK_URL = 'https://www.upwork.com/nx/find-work/';
 const COOKIE_PATH = '/nx/find-work/';
 
 const POLL_ALARM = 'upwork_poll';
-const POLL_MINUTES = 1;
+const POLL_MINUTES = 2;
 const MAX_STORED = 500;
 
 const PAGE_HEADERS = {
